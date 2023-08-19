@@ -1,131 +1,151 @@
-import { Box } from "@mui/material"
-import Column from "../Column"
-import Task from "../Task"
-import {
-    DragDropContext,
-    Draggable,
-    DraggableLocation,
-    Droppable,
-    OnDragEndResponder
-} from 'react-beautiful-dnd';
-import { useState } from "react";
+import React, { CSSProperties, useState } from "react";
+import ReactDOM from "react-dom";
+import { DragDropContext, Droppable, Draggable, DropResult, DraggableLocation, DraggingStyle, NotDraggingStyle } from "react-beautiful-dnd";
+import { Box, Button, Card, CardActions, CardContent, Paper, Typography, styled } from "@mui/material";
 
-interface ITask {
-    id: number
+type IColumn = {
+    id: string
     label: string
 }
 
-
-
-function getTasks() {
-
-    let id = 0
-
-    function getCol() {
-        const random = Math.floor(Math.random() * 9) + 1
-        const result: ITask[] = []
-        for (let index = 0; index < random; index++) {
-            result.push({ label: `task ${index}`, id })
-            id++
-        }
-        return result
-    }
-
-    const result: ITask[][] = []
-    for (let index = 0; index < 4; index++) {
-        result.push(getCol())
-    }
-    return result
+type ITask = {
+    id: string
+    label: string
+    column: string
+    order: number
 }
 
-function reorder<T>(list: T[], startIndex: number, endIndex: number) {
-    const result = Array.from(list);
-    const [removed] = result.splice(startIndex, 1);
-    result.splice(endIndex, 0, removed);
-
-    return result;
-};
-
-function move<T>(source: T[], destination: T[], droppableSource: DraggableLocation, droppableDestination: DraggableLocation) {
-    const sourceClone = Array.from(source);
-    const destClone = Array.from(destination);
-    const [removed] = sourceClone.splice(droppableSource.index, 1);
-
-    destClone.splice(droppableDestination.index, 0, removed);
-
-    const result: { source: T[], destination: T[] } = {
-        source: sourceClone,
-        destination: destClone
-    }
-
-    return result;
-};
+const Column = styled(Paper)({
+    width: 200,
+    padding: 1
+})
 
 function Board() {
-    const [tasks, setTasks] = useState<ITask[][]>(getTasks())
+    const [columns, setColumns] = useState<IColumn[]>([]);
+    const [tasks, setTasks] = useState<ITask[]>([]);
+    const [columnId, setColumnId] = useState(0);
+    const [taskId, setTaskId] = useState(0);
 
-    const onDragEnd: OnDragEndResponder = (result) => {
-        const { source, destination } = result;
 
-        // dropped outside the list
-        if (!destination) {
-            return;
+    const onDragEnd = (result: DropResult) => {
+        const { draggableId, source, destination } = result
+
+        if (destination) {
+
+            setTasks(newTasks => newTasks.map(t => {
+                if (t.id === draggableId) {
+
+                    t.column = destination.droppableId
+                    t.order = destination.index
+
+                }
+                else {
+                    if (t.column === destination.droppableId) {
+                        if (t.order > destination.index) {
+                            t.order = t.order + 1
+                        }
+                        if (t.order < destination.index) {
+                            t.order = t.order - 1
+                        }
+                    }
+                }
+                return t
+            }))
         }
-        const sInd = +source.droppableId;
-        const dInd = +destination.droppableId;
+    }
 
-        if (sInd === dInd) {
-            const items = reorder(tasks[sInd], source.index, destination.index);
-            const newState = [...tasks];
-            newState[sInd] = items;
-            setTasks(newState);
-        } else {
-            const result = move(tasks[sInd], tasks[dInd], source, destination);
-            const newState = [...tasks];
-            newState[sInd] = result.source;
-            newState[dInd] = result.destination;
+    const createColumn = (label: string | undefined = undefined) => {
+        setColumns((prev) => {
+            setColumnId(columnId + 1)
+            return [...prev, {
+                id: columnId.toString(),
+                label: label ? label : `column ${columnId}`
+            }]
+        })
+    }
 
-            setTasks(newState.filter(group => group.length));
-        }
+    const createTask = (label: string, column: string) => {
+        setTasks((prev) => {
+            setTaskId(taskId + 1)
+            return [...prev, {
+                id: taskId.toString(),
+                label: label,
+                column,
+                order: tasks.length
+            }]
+        })
     }
 
     return (
-        <DragDropContext onDragEnd={onDragEnd}>
-            <Box sx={{
-                display: "flex",
-                gap: 2,
-                alignItems: "start"
-            }}>
-                {tasks.map((col, index) => (
-                    <Droppable droppableId={`${index}`} key={index}>
-                        {(provided, snapshot) => (
-                            <div ref={provided.innerRef} {...provided.droppableProps}>
-                                {col.map((task, index) => (
-                                    <Draggable key={task.id} draggableId={`${task.id}`} index={index}>
-                                        {(provided, snapshot) => (
-                                            // <Task label={task.label} />
-                                            <div
-                                                ref={provided.innerRef}
-                                                {...provided.draggableProps}
-                                                {...provided.dragHandleProps}
+        <div>
+            <button
+                type="button"
+                onClick={() => {
+                    createColumn()
+                }}
+            >
+                Add new group
+            </button>
+            <button
+                type="button"
+                onClick={() => {
+                    if (columns.length > 0)
+                        createTask(`task ${taskId}`, columns[0].id)
+                }}
+            >
+                Add new item
+            </button>
+            <div style={{ display: "flex" }}>
+                <DragDropContext onDragEnd={onDragEnd}>
+                    {columns.map((col, ind) => (
+                        <Droppable key={ind} droppableId={`${ind}`}>
+                            {(provided, snapshot) => (
+                                <Box>
+                                    <Typography variant="h6">{col.label}</Typography>
+                                    <Column
+                                        ref={provided.innerRef}
+                                        {...provided.droppableProps}
+                                    >
+                                        {tasks.filter(t => t.column === col.id).sort((a, b) => a.order - b.order).map((item, index) => (
+                                            <Draggable
+                                                key={item.id}
+                                                draggableId={item.id}
+                                                index={item.order}
                                             >
-                                                {task.label}
-                                            </div>
-                                        )}
-                                    </Draggable>
-                                ))}
-                            </div>
-                        )}
-                    </Droppable>
-                    // <Column key={index}>
-                    //     {col.map((task, index) => (
-                    //         <Task label={task.label} key={index} />
-                    //     ))}
-                    // </Column>
-                ))}
-            </Box>
-        </DragDropContext>
-    )
+                                                {(provided, snapshot) => (
+                                                    <Card
+                                                        ref={provided.innerRef}
+                                                        {...provided.draggableProps}
+                                                        {...provided.dragHandleProps}
+                                                        style={provided.draggableProps.style}
+                                                    >
+                                                        <CardContent>
+
+                                                            <Typography variant="h5" component="div">
+                                                                {item.label}
+                                                            </Typography>
+
+                                                            <Typography variant="body2">
+                                                                task description
+                                                            </Typography>
+                                                        </CardContent>
+                                                        <CardActions>
+                                                            <Button size="small">Learn More</Button>
+                                                        </CardActions>
+                                                    </Card>
+                                                )}
+                                            </Draggable>
+                                        ))}
+                                        {provided.placeholder}
+                                    </Column>
+                                </Box>
+                            )}
+                        </Droppable>
+                    ))}
+                </DragDropContext>
+            </div>
+        </div>
+    );
 }
 
 export default Board
