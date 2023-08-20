@@ -1,5 +1,4 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import type { RootState } from '../store'
 import { IColumn, ITask } from '../types/task'
 
 // Define a type for the slice state
@@ -48,28 +47,22 @@ export const tasksSlice = createSlice({
       state.tasks = state.tasks.filter(t => t.id !== action.payload)
     },
     moveTask: (state, action: PayloadAction<{ task: number, column: number, order: number }>) => {
+      const column = state.columns[action.payload.column]
       const task = state.tasks.find(t => t.id === action.payload.task)
       state.tasks = state.tasks.filter(t => t.id !== action.payload.task)
       let i = 0
-      for (const task of state.tasks.filter(t => t.column === action.payload.column).sort((a, b) => a.order - b.order)) {
+      for (const task of state.tasks.filter(t => t.column === column.id).sort((a, b) => a.order - b.order)) {
 
         task.order = i === action.payload.order ? i + 1 : i
         i++
       }
       if (task) {
-        task.column = action.payload.column
+        task.column = column.id
         task.order = action.payload.order
         state.tasks.push(task)
       }
 
     }
-    // decrement: state => {
-    //   state.value -= 1
-    // },
-    // // Use the PayloadAction type to declare the contents of `action.payload`
-    // incrementByAmount: (state, action: PayloadAction<number>) => {
-    //   state.value += action.payload
-    // }
   }
 })
 

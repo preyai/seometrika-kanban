@@ -4,8 +4,9 @@ import { DragDropContext, Droppable, Draggable, DropResult, DraggableLocation, D
 import { Box, Button, Card, CardActions, CardContent, Paper, Typography, styled } from "@mui/material";
 import { IColumn, ITask } from "../../types/task";
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
-import { createColumn, createTask, moveTask } from "../../redux/tasks";
+import { createColumn, createTask, deleteColumn, deleteTask, moveTask } from "../../redux/tasks";
 import { AppDispatch } from "../../store";
+import Task from "../Task/Task";
 
 
 
@@ -27,7 +28,7 @@ function Board() {
 
         if (destination) {
             console.log(destination);
-            
+
             dispatch(moveTask({ task: Number(result.draggableId), column: Number(destination.droppableId), order: destination.index }))
             // setTasks(newTasks => newTasks.map(t => {
             //     if (t.id === draggableId) {
@@ -55,14 +56,12 @@ function Board() {
 
     return (
         <div>
-            <p>{columns.length}</p>
-            <button
-                type="button"
+            <Button
                 onClick={() => dispatch(createColumn())}
             >
                 Add new group
-            </button>
-            <button
+            </Button>
+            <Button
                 type="button"
                 onClick={() => {
                     if (columns.length > 0)
@@ -70,14 +69,16 @@ function Board() {
                 }}
             >
                 Add new item
-            </button>
+            </Button>
             <div style={{ display: "flex" }}>
                 <DragDropContext onDragEnd={onDragEnd}>
                     {columns.map((col, ind) => (
                         <Droppable key={ind} droppableId={`${ind}`}>
                             {(provided, snapshot) => (
                                 <Box>
-                                    <Typography variant="h6">{col.label}</Typography>
+                                    <Typography variant="h6">{col.label}
+                                        <Button onClick={() => dispatch(deleteColumn(col.id))}>x</Button>
+                                    </Typography>
                                     <Column
                                         ref={provided.innerRef}
                                         {...provided.droppableProps}
@@ -96,19 +97,7 @@ function Board() {
                                                         {...provided.dragHandleProps}
                                                         style={provided.draggableProps.style}
                                                     >
-                                                        <CardContent>
-
-                                                            <Typography variant="h5" component="div">
-                                                                {item.id}. {item.label}
-                                                            </Typography>
-
-                                                            <Typography variant="body2">
-                                                                task description {item.order}
-                                                            </Typography>
-                                                        </CardContent>
-                                                        <CardActions>
-                                                            <Button size="small">Learn More</Button>
-                                                        </CardActions>
+                                                        <Task task={item} />
                                                     </Card>
                                                 )}
                                             </Draggable>
