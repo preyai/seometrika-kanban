@@ -2,87 +2,63 @@ import React, { CSSProperties, useState } from "react";
 import ReactDOM from "react-dom";
 import { DragDropContext, Droppable, Draggable, DropResult, DraggableLocation, DraggingStyle, NotDraggingStyle } from "react-beautiful-dnd";
 import { Box, Button, Card, CardActions, CardContent, Paper, Typography, styled } from "@mui/material";
+import { IColumn, ITask } from "../../types/task";
+import { useAppDispatch, useAppSelector } from "../../hooks/redux";
+import { createColumn, createTask, moveTask } from "../../redux/tasks";
+import { AppDispatch } from "../../store";
 
-type IColumn = {
-    id: string
-    label: string
-}
 
-type ITask = {
-    id: string
-    label: string
-    column: string
-    order: number
-}
 
 const Column = styled(Paper)({
     width: 200,
-    padding: 1
+    padding: 2
 })
 
 function Board() {
-    const [columns, setColumns] = useState<IColumn[]>([]);
-    const [tasks, setTasks] = useState<ITask[]>([]);
-    const [columnId, setColumnId] = useState(0);
-    const [taskId, setTaskId] = useState(0);
-
+    // const [columns, setColumns] = useState<IColumn[]>([]);
+    // const [tasks, setTasks] = useState<ITask[]>([]);
+    // const [columnId, setColumnId] = useState(0);
+    // const [taskId, setTaskId] = useState(0);
+    const { columns, tasks } = useAppSelector(state => state.tasks)
+    const dispatch: AppDispatch = useAppDispatch()
 
     const onDragEnd = (result: DropResult) => {
         const { draggableId, source, destination } = result
 
         if (destination) {
+            console.log(destination);
+            
+            dispatch(moveTask({ task: Number(result.draggableId), column: Number(destination.droppableId), order: destination.index }))
+            // setTasks(newTasks => newTasks.map(t => {
+            //     if (t.id === draggableId) {
 
-            setTasks(newTasks => newTasks.map(t => {
-                if (t.id === draggableId) {
+            //         t.column = destination.droppableId
+            //         t.order = destination.index
 
-                    t.column = destination.droppableId
-                    t.order = destination.index
-
-                }
-                else {
-                    if (t.column === destination.droppableId) {
-                        if (t.order > destination.index) {
-                            t.order = t.order + 1
-                        }
-                        if (t.order < destination.index) {
-                            t.order = t.order - 1
-                        }
-                    }
-                }
-                return t
-            }))
+            //     }
+            //     else {
+            //         if (t.column === destination.droppableId) {
+            //             if (t.order > destination.index) {
+            //                 t.order = t.order - 1
+            //             }
+            //             if (t.order < destination.index) {
+            //                 t.order = t.order + 1
+            //             }
+            //         }
+            //     }
+            //     return t
+            // }))
         }
     }
 
-    const createColumn = (label: string | undefined = undefined) => {
-        setColumns((prev) => {
-            setColumnId(columnId + 1)
-            return [...prev, {
-                id: columnId.toString(),
-                label: label ? label : `column ${columnId}`
-            }]
-        })
-    }
 
-    const createTask = (label: string, column: string) => {
-        setTasks((prev) => {
-            setTaskId(taskId + 1)
-            return [...prev, {
-                id: taskId.toString(),
-                label: label,
-                column,
-                order: tasks.length
-            }]
-        })
-    }
 
     return (
         <div>
+            <p>{columns.length}</p>
             <button
                 type="button"
-                onClick={() => {
-                    createColumn()
-                }}
+                onClick={() => dispatch(createColumn())}
             >
                 Add new group
             </button>
@@ -90,7 +66,7 @@ function Board() {
                 type="button"
                 onClick={() => {
                     if (columns.length > 0)
-                        createTask(`task ${taskId}`, columns[0].id)
+                        dispatch(createTask({ label: "task", column: columns[0].id }))
                 }}
             >
                 Add new item
@@ -109,11 +85,12 @@ function Board() {
                                         {tasks.filter(t => t.column === col.id).sort((a, b) => a.order - b.order).map((item, index) => (
                                             <Draggable
                                                 key={item.id}
-                                                draggableId={item.id}
+                                                draggableId={`${item.id}`}
                                                 index={item.order}
                                             >
                                                 {(provided, snapshot) => (
                                                     <Card
+                                                        sx={{ marginBottom: 1 }}
                                                         ref={provided.innerRef}
                                                         {...provided.draggableProps}
                                                         {...provided.dragHandleProps}
@@ -122,11 +99,11 @@ function Board() {
                                                         <CardContent>
 
                                                             <Typography variant="h5" component="div">
-                                                                {item.label}
+                                                                {item.id}. {item.label}
                                                             </Typography>
 
                                                             <Typography variant="body2">
-                                                                task description
+                                                                task description {item.order}
                                                             </Typography>
                                                         </CardContent>
                                                         <CardActions>
