@@ -12,14 +12,17 @@
   "dependencies": {
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
+    "@feathersjs/socketio-client": "^5.0.8",
     "@mui/icons-material": "^5.14.3",
     "@mui/material": "^5.14.5",
     "@reduxjs/toolkit": "^1.9.5",
     "@types/react-beautiful-dnd": "^13.1.4",
+    "kanban-api": "http://localhost:3030/kanban-api-0.0.0.tgz",
     "react": "^18.2.0",
     "react-beautiful-dnd": "^13.1.1",
     "react-dom": "^18.2.0",
-    "react-redux": "^8.1.2"
+    "react-redux": "^8.1.2",
+    "socket.io-client": "^4.7.2"
   },
   "devDependencies": {
     "@types/react": "^18.2.15",
