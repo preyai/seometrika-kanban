@@ -1,54 +1,29 @@
-import React, { CSSProperties, useState } from "react";
-import ReactDOM from "react-dom";
-import { DragDropContext, Droppable, Draggable, DropResult, DraggableLocation, DraggingStyle, NotDraggingStyle } from "react-beautiful-dnd";
-import { Box, Button, Card, CardActions, CardContent, Paper, Typography, styled } from "@mui/material";
-import { IColumn, ITask } from "../../types/task";
+import { DragDropContext, Droppable, Draggable, DropResult} from "react-beautiful-dnd";
+import { Box, Button, Card,  Paper, Typography, styled } from "@mui/material";
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
-import { createColumn, createTask, deleteColumn, deleteTask, moveTask } from "../../redux/tasks";
+import { createColumn, createTask, deleteColumn, moveTask } from "../../redux/tasks";
 import { AppDispatch } from "../../store";
 import Task from "../Task/Task";
 
 
 
 const Column = styled(Paper)({
-    width: 200,
+    width: 300,
     padding: 2
 })
 
 function Board() {
-    // const [columns, setColumns] = useState<IColumn[]>([]);
-    // const [tasks, setTasks] = useState<ITask[]>([]);
-    // const [columnId, setColumnId] = useState(0);
-    // const [taskId, setTaskId] = useState(0);
     const { columns, tasks } = useAppSelector(state => state.tasks)
     const dispatch: AppDispatch = useAppDispatch()
 
     const onDragEnd = (result: DropResult) => {
-        const { draggableId, source, destination } = result
+        const { destination } = result
 
         if (destination) {
             console.log(destination);
 
             dispatch(moveTask({ task: Number(result.draggableId), column: Number(destination.droppableId), order: destination.index }))
-            // setTasks(newTasks => newTasks.map(t => {
-            //     if (t.id === draggableId) {
 
-            //         t.column = destination.droppableId
-            //         t.order = destination.index
-
-            //     }
-            //     else {
-            //         if (t.column === destination.droppableId) {
-            //             if (t.order > destination.index) {
-            //                 t.order = t.order - 1
-            //             }
-            //             if (t.order < destination.index) {
-            //                 t.order = t.order + 1
-            //             }
-            //         }
-            //     }
-            //     return t
-            // }))
         }
     }
 

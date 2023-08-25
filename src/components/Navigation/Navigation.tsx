@@ -3,7 +3,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
-import { MouseEvent, PropsWithChildren, useEffect, useState } from 'react';
+import { MouseEvent, PropsWithChildren, useState } from 'react';
 import { Box, Divider, Drawer, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Menu, MenuItem, AppBar as MuiAppBar, AppBarProps as MuiAppBarProps, Toolbar, Typography } from '@mui/material';
 import { AccountCircle } from '@mui/icons-material';
 import { logout } from '../../redux/auth';
