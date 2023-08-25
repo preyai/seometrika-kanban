@@ -3,8 +3,9 @@ import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
-import { PropsWithChildren, useState } from 'react';
-import { Box, Divider, Drawer, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, AppBar as MuiAppBar, AppBarProps as MuiAppBarProps, Toolbar, Typography} from '@mui/material';
+import { PropsWithChildren, useEffect, useState } from 'react';
+import { Box, Divider, Drawer, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, AppBar as MuiAppBar, AppBarProps as MuiAppBarProps, Toolbar, Typography } from '@mui/material';
+import client from '../../feathers';
 
 const drawerWidth = 240;
 
@@ -83,7 +84,7 @@ function Navigation({ children }: PropsWithChildren) {
                         <MenuIcon />
                     </IconButton>
                     <Typography variant="h6" noWrap component="div">
-                       Seometrika - "project name"
+                        Seometrika - "project name"
                     </Typography>
                 </Toolbar>
             </AppBar>
