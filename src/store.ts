@@ -1,9 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit'
-import tasksReducer from './redux/tasks'
+import tasks from './redux/tasks'
+import auth from './redux/auth'
 
 const store = configureStore({
   reducer: {
-    tasks: tasksReducer
+    tasks: tasks,
+    auth: auth
   }
 })
 
