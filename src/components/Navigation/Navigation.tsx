@@ -3,9 +3,11 @@ import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
-import { PropsWithChildren, useEffect, useState } from 'react';
-import { Box, Divider, Drawer, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, AppBar as MuiAppBar, AppBarProps as MuiAppBarProps, Toolbar, Typography } from '@mui/material';
-import client from '../../feathers';
+import { MouseEvent, PropsWithChildren, useEffect, useState } from 'react';
+import { Box, Divider, Drawer, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Menu, MenuItem, AppBar as MuiAppBar, AppBarProps as MuiAppBarProps, Toolbar, Typography } from '@mui/material';
+import { AccountCircle } from '@mui/icons-material';
+import { logout } from '../../redux/auth';
+import { useAppDispatch } from '../../hooks/redux';
 
 const drawerWidth = 240;
 
@@ -61,6 +63,17 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 function Navigation({ children }: PropsWithChildren) {
     const theme = useTheme();
     const [open, setOpen] = useState(false);
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+    const dispatch = useAppDispatch()
+
+    const handleMenu = (event: MouseEvent<HTMLElement>) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
 
     const handleDrawerOpen = () => {
         setOpen(true);
@@ -68,6 +81,11 @@ function Navigation({ children }: PropsWithChildren) {
 
     const handleDrawerClose = () => {
         setOpen(false);
+    };
+
+    const handleDrawerLogout= () => {
+        setOpen(false);
+        dispatch(logout())
     };
 
     return (
@@ -83,9 +101,39 @@ function Navigation({ children }: PropsWithChildren) {
                     >
                         <MenuIcon />
                     </IconButton>
-                    <Typography variant="h6" noWrap component="div">
+                    <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
                         Seometrika - "project name"
                     </Typography>
+                    <>
+                        <IconButton
+                            size="large"
+                            aria-label="account of current user"
+                            aria-controls="menu-appbar"
+                            aria-haspopup="true"
+                            onClick={handleMenu}
+                            color="inherit"
+                        >
+                            <AccountCircle />
+                        </IconButton>
+                        <Menu
+                            id="menu-appbar"
+                            anchorEl={anchorEl}
+                            anchorOrigin={{
+                                vertical: 'top',
+                                horizontal: 'right',
+                            }}
+                            keepMounted
+                            transformOrigin={{
+                                vertical: 'top',
+                                horizontal: 'right',
+                            }}
+                            open={Boolean(anchorEl)}
+                            onClose={handleClose}
+                        >
+                            <MenuItem onClick={handleClose}>Profile</MenuItem>
+                            <MenuItem onClick={handleDrawerLogout}>Logout</MenuItem>
+                        </Menu>
+                    </>
                 </Toolbar>
             </AppBar>
             <Drawer

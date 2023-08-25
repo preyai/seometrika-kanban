@@ -14,10 +14,10 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <Provider store={store}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <Navigation>
-          {/* <Board /> */}
-          <App/>
-        </Navigation>
+
+        {/* <Board /> */}
+        <App />
+
       </ThemeProvider>
     </Provider>
   </React.StrictMode>,

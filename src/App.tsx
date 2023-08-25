@@ -1,33 +1,21 @@
-import { useEffect } from "react"
-import auth, { authenticate, logout, reAuthenticate } from "./redux/auth"
-import { useAppDispatch, useAppSelector } from "./hooks/redux"
-import { Button, Typography } from "@mui/material"
+import { useAppSelector } from "./hooks/redux"
+import Navigation from "./components/Navigation"
+import Auth from "./components/Auth"
+import Board from "./components/Board/Board"
 
 
 function App() {
-  const dispatch = useAppDispatch()
   const auth = useAppSelector(state => state.auth)
-
-  useEffect(() => {
-    dispatch(reAuthenticate())
-  }, [])
-
-  const handlerOne = () => {
-    dispatch(authenticate({
-      email: 'preyaizman@yandex.ru',
-      password: '0507spase'
-    }))
-  }
-
-  const handlerTwo = () => {
-    dispatch(logout())
-  }
 
   return (
     <>
-      <Typography>{auth.token}</Typography>
-      <Button onClick={handlerOne}>login</Button>
-      <Button onClick={handlerTwo}>logout</Button>
+      {auth.user !== null ?
+        <Navigation>
+          <Board />
+        </Navigation>
+        :
+        <Auth />
+      }
     </>
   )
 }
