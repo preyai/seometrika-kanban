@@ -1,7 +1,7 @@
 import io from 'socket.io-client'
 import socketio from '@feathersjs/socketio-client'
-import { createClient } from 'kanban-api'
 import authentication from '@feathersjs/authentication-client'
+import { createClient } from 'kanban-api'
 
 
 export const apiPath = 'http://80.78.247.239:3030'

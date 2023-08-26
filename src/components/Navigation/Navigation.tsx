@@ -8,7 +8,7 @@ import { Box, Divider, Drawer, IconButton, List, ListItem, ListItemButton, ListI
 import { AccountCircle } from '@mui/icons-material';
 import { logout } from '../../redux/auth';
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
-import ProjectsList from '../ProjectsList/ProjectsList';
+import ProjectsList from '../BoardsList/BoardsList';
 import { Outlet, useNavigate } from 'react-router-dom';
 
 const drawerWidth = 240;
@@ -65,7 +65,7 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 function Navigation({ children }: PropsWithChildren) {
     const theme = useTheme();
     const auth = useAppSelector(state => state.auth)
-    const {current} = useAppSelector(state => state.projects)
+    const {current} = useAppSelector(state => state.boards)
     const navigate = useNavigate()
     const [open, setOpen] = useState(false);
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);

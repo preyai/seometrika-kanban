@@ -1,14 +1,14 @@
 import { IconButton, Input, List, ListItem, ListItemButton, ListItemIcon, ListItemText, TextField } from "@mui/material"
 import { useAppDispatch, useAppSelector } from "../../hooks/redux"
 import { Add, Delete } from "@mui/icons-material"
-import { add, remove } from "../../redux/projects"
+import { add, remove } from "../../redux/boards"
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 
 
 function ProjectsList() {
     const [title, setTitle] = useState("")
-    const { data } = useAppSelector(state => state.projects)
+    const { data } = useAppSelector(state => state.boards)
     const dispatch = useAppDispatch()
     const navigate = useNavigate()
 

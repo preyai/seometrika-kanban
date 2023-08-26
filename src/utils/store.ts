@@ -1,13 +1,15 @@
 import { configureStore } from '@reduxjs/toolkit'
 import tasks from '../redux/tasks'
 import auth from '../redux/auth'
-import projects from '../redux/projects'
+import boards from '../redux/boards'
+import board from '../redux/board'
 
 const store = configureStore({
   reducer: {
     tasks: tasks,
     auth: auth,
-    projects: projects
+    boards: boards,
+    board: board
   }
 })
 

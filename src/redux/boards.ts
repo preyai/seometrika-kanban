@@ -1,36 +1,36 @@
 import { createAsyncThunk, createSlice, current } from '@reduxjs/toolkit'
 
-import { Projects } from 'kanban-api'
 import client from '../utils/feathers'
 import { Paginated } from '@feathersjs/feathers'
+import { Boards } from 'kanban-api'
 
-type ProjectsState = {
-    data: Projects[]
-    current: Projects | null
+type BoardsState = {
+    data: Boards[]
+    current: Boards | null
 }
 
-const initial = async (): Promise<ProjectsState> => {
+const initial = async (): Promise<BoardsState> => {
     try {
-        const list = await client.service("projects").find({
+        const list = await client.service("boards").find({
             paginate: { max: 100 }
         })
         console.log(list);
-        
+
         return {
             data: list.data,
             current: null
         }
     } catch (error) {
-        return {} as ProjectsState
+        return {} as BoardsState
     }
 }
 
 export const getCurrent = createAsyncThunk(
-    'projects/getCurrent',
+    'boards/getCurrent',
     async (id: string) => {
         try {
-            const project = await client.service('projects').get(id)
-            return project
+            const board = await client.service('boards').get(id)
+            return board
         } catch (error) {
             return null
         }
@@ -38,40 +38,39 @@ export const getCurrent = createAsyncThunk(
 )
 
 export const get = createAsyncThunk(
-    'projects/get',
+    'boards/get',
     async () => {
         try {
-            const list = await client.service("projects").find({
+            const list = await client.service("boards").find({
                 paginate: { max: 100 }
             })
             return list
         } catch (error) {
-            return {} as Paginated<Projects>
+            return {} as Paginated<Boards>
         }
 
     }
 )
 
 export const add = createAsyncThunk(
-    'projects/add',
+    'boards/add',
     async ({ title }: { title: string }) => {
-        await client.service("projects").create({
+        await client.service("boards").create({
             title
         })
-        const list = await client.service("projects").find({
+        const list = await client.service("boards").find({
             paginate: { max: 100 }
         })
-        console.log(list);
 
         return list
     }
 )
 
 export const remove = createAsyncThunk(
-    'projects/remove',
+    'boards/remove',
     async (id: string) => {
-        await client.service('projects').remove(id)
-        const list = await client.service("projects").find({
+        await client.service('boards').remove(id)
+        const list = await client.service("boards").find({
             paginate: { max: 100 }
         })
         console.log(list);
@@ -81,10 +80,10 @@ export const remove = createAsyncThunk(
 )
 
 // Define the initial state using that type
-const initialState: ProjectsState = await initial()
+const initialState: BoardsState = await initial()
 
-export const projectsSlice = createSlice({
-    name: 'projects',
+export const boardsSlice = createSlice({
+    name: 'boards',
     // `createSlice` will infer the state type from the `initialState` argument
     initialState,
     reducers: {},
@@ -104,6 +103,6 @@ export const projectsSlice = createSlice({
     },
 })
 
-export const { } = projectsSlice.actions
+export const { } = boardsSlice.actions
 
-export default projectsSlice.reducer
+export default boardsSlice.reducer

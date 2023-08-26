@@ -4,9 +4,10 @@ import { useState } from "react";
 import { useAppDispatch } from "../../hooks/redux";
 import { deleteTask } from "../../redux/tasks";
 import { DraggableProvided } from "react-beautiful-dnd";
+import { Tasks } from "kanban-api";
 
 type TaskProps = {
-    task: ITask,
+    task: Tasks,
     provided: DraggableProvided
 }
 
@@ -37,7 +38,7 @@ function Task({ task, provided }: TaskProps) {
             <CardContent>
 
                 <Typography variant="h5" component="div">
-                    {task.id}. {task.label}
+                    {task.number}. {task.title}
                 </Typography>
 
                 <Typography variant="body2">
@@ -55,12 +56,16 @@ function Task({ task, provided }: TaskProps) {
             >
                 <Box sx={style}>
                     <Typography id="modal-modal-title" variant="h6" component="h2">
-                        {task.id}. {task.label}
+                        {task.number}. {task.title}
                     </Typography>
                     <Typography id="modal-modal-description" sx={{ mt: 2 }}>
                         task description {task.order}
                     </Typography>
-                    <Button onClick={() => dispatch(deleteTask(task.id))}>delete</Button>
+                    <Button
+                    // onClick={() => dispatch(deleteTask(task._id))}
+                    >
+                        delete
+                    </Button>
                 </Box>
             </Modal>
         </Card>
