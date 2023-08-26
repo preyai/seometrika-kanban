@@ -8,6 +8,7 @@ import { Box, Divider, Drawer, IconButton, List, ListItem, ListItemButton, ListI
 import { AccountCircle } from '@mui/icons-material';
 import { logout } from '../../redux/auth';
 import { useAppDispatch } from '../../hooks/redux';
+import ProjectsList from '../ProjectsList/ProjectsList';
 
 const drawerWidth = 240;
 
@@ -155,16 +156,7 @@ function Navigation({ children }: PropsWithChildren) {
                     </IconButton>
                 </DrawerHeader>
                 <Divider />
-                <List>
-                    <ListItem disablePadding>
-                        <ListItemButton>
-                            <ListItemIcon>
-                                <InboxIcon />
-                            </ListItemIcon>
-                            <ListItemText primary={"tasks"} />
-                        </ListItemButton>
-                    </ListItem>
-                </List>
+                <ProjectsList/>
             </Drawer>
             <Main open={open}>
                 <DrawerHeader />

@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
-import { RootState } from '../store'
+import { RootState } from '../utils/store'
 import { User } from 'kanban-api'
-import client from '../feathers'
+import client from '../utils/feathers'
 
 
 

@@ -3,9 +3,11 @@ import { ITask } from "../../types/task";
 import { useState } from "react";
 import { useAppDispatch } from "../../hooks/redux";
 import { deleteTask } from "../../redux/tasks";
+import { DraggableProvided } from "react-beautiful-dnd";
 
 type TaskProps = {
-    task: ITask
+    task: ITask,
+    provided: DraggableProvided
 }
 
 const style = {
@@ -20,12 +22,18 @@ const style = {
     p: 4,
 };
 
-function Task({ task }: TaskProps) {
+function Task({ task, provided }: TaskProps) {
     const [open, setOpen] = useState(false)
     const dispatch = useAppDispatch()
 
     return (
-        <>
+        <Card
+            sx={{ marginBottom: 1 }}
+            ref={provided.innerRef}
+            {...provided.draggableProps}
+            {...provided.dragHandleProps}
+            style={provided.draggableProps.style}
+        >
             <CardContent>
 
                 <Typography variant="h5" component="div">
@@ -55,7 +63,7 @@ function Task({ task }: TaskProps) {
                     <Button onClick={() => dispatch(deleteTask(task.id))}>delete</Button>
                 </Box>
             </Modal>
-        </>
+        </Card>
     )
 }
 
