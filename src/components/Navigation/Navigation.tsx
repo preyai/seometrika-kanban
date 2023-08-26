@@ -3,12 +3,13 @@ import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
-import { MouseEvent, PropsWithChildren, useState } from 'react';
+import { MouseEvent, PropsWithChildren, useEffect, useState } from 'react';
 import { Box, Divider, Drawer, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Menu, MenuItem, AppBar as MuiAppBar, AppBarProps as MuiAppBarProps, Toolbar, Typography } from '@mui/material';
 import { AccountCircle } from '@mui/icons-material';
 import { logout } from '../../redux/auth';
-import { useAppDispatch } from '../../hooks/redux';
+import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import ProjectsList from '../ProjectsList/ProjectsList';
+import { Outlet, useNavigate } from 'react-router-dom';
 
 const drawerWidth = 240;
 
@@ -63,8 +64,16 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 
 function Navigation({ children }: PropsWithChildren) {
     const theme = useTheme();
+    const auth = useAppSelector(state => state.auth)
+    const {current} = useAppSelector(state => state.projects)
+    const navigate = useNavigate()
     const [open, setOpen] = useState(false);
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+    useEffect(() => {
+        if (auth.user === null)
+            navigate("/login")
+    }, [auth])
 
     const dispatch = useAppDispatch()
 
@@ -84,86 +93,87 @@ function Navigation({ children }: PropsWithChildren) {
         setOpen(false);
     };
 
-    const handleDrawerLogout= () => {
+    const handleDrawerLogout = () => {
         setOpen(false);
         dispatch(logout())
     };
 
-    return (
-        <Box sx={{ display: 'flex' }}>
-            <AppBar position="fixed" open={open}>
-                <Toolbar>
-                    <IconButton
-                        color="inherit"
-                        aria-label="open drawer"
-                        onClick={handleDrawerOpen}
-                        edge="start"
-                        sx={{ mr: 2, ...(open && { display: 'none' }) }}
-                    >
-                        <MenuIcon />
-                    </IconButton>
-                    <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-                        Seometrika - "project name"
-                    </Typography>
-                    <>
+    if (auth.user)
+        return (
+            <Box sx={{ display: 'flex' }}>
+                <AppBar position="fixed" open={open}>
+                    <Toolbar>
                         <IconButton
-                            size="large"
-                            aria-label="account of current user"
-                            aria-controls="menu-appbar"
-                            aria-haspopup="true"
-                            onClick={handleMenu}
                             color="inherit"
+                            aria-label="open drawer"
+                            onClick={handleDrawerOpen}
+                            edge="start"
+                            sx={{ mr: 2, ...(open && { display: 'none' }) }}
                         >
-                            <AccountCircle />
+                            <MenuIcon />
                         </IconButton>
-                        <Menu
-                            id="menu-appbar"
-                            anchorEl={anchorEl}
-                            anchorOrigin={{
-                                vertical: 'top',
-                                horizontal: 'right',
-                            }}
-                            keepMounted
-                            transformOrigin={{
-                                vertical: 'top',
-                                horizontal: 'right',
-                            }}
-                            open={Boolean(anchorEl)}
-                            onClose={handleClose}
-                        >
-                            <MenuItem onClick={handleClose}>Profile</MenuItem>
-                            <MenuItem onClick={handleDrawerLogout}>Logout</MenuItem>
-                        </Menu>
-                    </>
-                </Toolbar>
-            </AppBar>
-            <Drawer
-                sx={{
-                    width: drawerWidth,
-                    flexShrink: 0,
-                    '& .MuiDrawer-paper': {
+                        <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
+                            Seometrika {current && `- "${current.title}"`}
+                        </Typography>
+                        <>
+                            <IconButton
+                                size="large"
+                                aria-label="account of current user"
+                                aria-controls="menu-appbar"
+                                aria-haspopup="true"
+                                onClick={handleMenu}
+                                color="inherit"
+                            >
+                                <AccountCircle />
+                            </IconButton>
+                            <Menu
+                                id="menu-appbar"
+                                anchorEl={anchorEl}
+                                anchorOrigin={{
+                                    vertical: 'top',
+                                    horizontal: 'right',
+                                }}
+                                keepMounted
+                                transformOrigin={{
+                                    vertical: 'top',
+                                    horizontal: 'right',
+                                }}
+                                open={Boolean(anchorEl)}
+                                onClose={handleClose}
+                            >
+                                <MenuItem onClick={handleClose}>Profile</MenuItem>
+                                <MenuItem onClick={handleDrawerLogout}>Logout</MenuItem>
+                            </Menu>
+                        </>
+                    </Toolbar>
+                </AppBar>
+                <Drawer
+                    sx={{
                         width: drawerWidth,
-                        boxSizing: 'border-box',
-                    },
-                }}
-                variant="persistent"
-                anchor="left"
-                open={open}
-            >
-                <DrawerHeader>
-                    <IconButton onClick={handleDrawerClose}>
-                        {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
-                    </IconButton>
-                </DrawerHeader>
-                <Divider />
-                <ProjectsList/>
-            </Drawer>
-            <Main open={open}>
-                <DrawerHeader />
-                {children}
-            </Main>
-        </Box>
-    );
+                        flexShrink: 0,
+                        '& .MuiDrawer-paper': {
+                            width: drawerWidth,
+                            boxSizing: 'border-box',
+                        },
+                    }}
+                    variant="persistent"
+                    anchor="left"
+                    open={open}
+                >
+                    <DrawerHeader>
+                        <IconButton onClick={handleDrawerClose}>
+                            {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
+                        </IconButton>
+                    </DrawerHeader>
+                    <Divider />
+                    <ProjectsList />
+                </Drawer>
+                <Main open={open}>
+                    <DrawerHeader />
+                    <Outlet />
+                </Main>
+            </Box>
+        );
 }
 
 export default Navigation

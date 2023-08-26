@@ -1,14 +1,21 @@
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { Alert, Avatar, Box, Button, Container, TextField, Typography } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
 import { authenticate } from "../../redux/auth";
+import { useNavigate } from "react-router-dom";
 
 function Auth() {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const auth = useAppSelector(store => store.auth)
     const dispatch = useAppDispatch()
+    const navigate = useNavigate()
+
+    useEffect(() => {
+        if (auth.user !== null)
+            navigate("/")
+    }, [auth])
 
     const submit = () => {
         dispatch(authenticate({

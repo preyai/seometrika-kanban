@@ -28,7 +28,7 @@ function Column({ children, col, provided }: ColumnProps) {
                 {...provided.droppableProps}
             >
                 {children}
-                {provided.placeholder}
+                {/* {provided.placeholder} */}
             </ColumnPaper>
         </Box>
     )

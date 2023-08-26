@@ -13,6 +13,7 @@ type AuthState = {
 
 
 const onStart = async (): Promise<AuthState> => {
+
     try {
         const result = await client.reAuthenticate()
         return {
@@ -20,7 +21,7 @@ const onStart = async (): Promise<AuthState> => {
             user: result.user,
             error: null
         }
-    } catch (error) {
+    } catch (error: any) {
         return {
             accessToken: null,
             user: null,
