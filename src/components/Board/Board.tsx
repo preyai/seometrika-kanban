@@ -1,18 +1,20 @@
 import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautiful-dnd";
-import { Box, Button, Card, Paper, Typography, styled } from "@mui/material";
+import { Box, Button, Card, FormControl, IconButton, InputBase, Paper, TextField, Typography, styled } from "@mui/material";
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
 import { createColumn, createTask, deleteColumn, moveTask } from "../../redux/tasks";
 import { AppDispatch } from "../../utils/store";
 import Task from "../Task/Task";
 import Column from "../Column/Column";
 import { useParams } from "react-router-dom";
-import { useEffect } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { getCurrent } from "../../redux/projects";
+import { Add, Close } from "@mui/icons-material";
 
 
 
 
 function Board() {
+    const [newTitle, setNewTitle] = useState("")
     const { columns, tasks } = useAppSelector(state => state.tasks)
     const { current } = useAppSelector(state => state.projects)
     const dispatch: AppDispatch = useAppDispatch()
@@ -34,25 +36,17 @@ function Board() {
         }
     }
 
+    const addHandler = (e: FormEvent) => {
+        e.preventDefault()
+        dispatch(createColumn(newTitle))
+        setNewTitle("")
+    }
+
 
     if (current)
         return (
             <div>
-                <Button
-                    onClick={() => dispatch(createColumn())}
-                >
-                    Add new group
-                </Button>
-                <Button
-                    type="button"
-                    onClick={() => {
-                        if (columns.length > 0)
-                            dispatch(createTask({ label: "task", column: columns[0].id }))
-                    }}
-                >
-                    Add new item
-                </Button>
-                <div style={{ display: "flex" }}>
+                <div style={{ display: "flex", gap: 20 }}>
                     <DragDropContext onDragEnd={onDragEnd}>
                         {columns.map((col, ind) => (
                             <Droppable key={ind} droppableId={`${ind}`}>
@@ -74,6 +68,27 @@ function Board() {
                                 )}
                             </Droppable>
                         ))}
+                        <Box>
+                            <Paper
+                                component="form"
+                                sx={{ p: '2px 4px', display: 'flex', alignItems: 'center', width: 300, mb: 2 }}
+                                onSubmit={addHandler}
+                            >
+                                <InputBase
+                                    sx={{ ml: 1, flex: 1 }}
+                                    placeholder="New column"
+                                    value={newTitle}
+                                    onChange={e => setNewTitle(e.target.value)}
+                                />
+                                <IconButton
+                                    type="button"
+                                    sx={{ p: '10px' }}
+                                    onClick={addHandler}
+                                >
+                                    <Add />
+                                </IconButton>
+                            </Paper>
+                        </Box>
                     </DragDropContext>
                 </div>
             </div>
