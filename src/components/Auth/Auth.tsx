@@ -1,6 +1,6 @@
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { Alert, Avatar, Box, Button, Container, TextField, Typography } from "@mui/material";
-import { useEffect, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
 import { authenticate } from "../../redux/auth";
 import { useNavigate } from "react-router-dom";
@@ -17,7 +17,8 @@ function Auth() {
             navigate("/")
     }, [auth])
 
-    const submit = () => {
+    const submit = (e: FormEvent) => {
+        e.preventDefault()
         dispatch(authenticate({
             email,
             password
@@ -27,6 +28,8 @@ function Auth() {
     return (
         <Container component="main" maxWidth="xs">
             <Box
+                component="form"
+                onSubmit={submit}
                 sx={{
                     marginTop: 8,
                     display: 'flex',

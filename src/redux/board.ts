@@ -1,15 +1,17 @@
-
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
-import { Lists } from 'kanban-api'
+import { PayloadAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit'
+import { ClientApplication, Lists } from 'kanban-api'
 import { Tasks } from 'kanban-api'
 import client from '../utils/feathers'
 import { RootState } from '../utils/store'
+import { TasksClientService } from 'kanban-api/lib/services/tasks/tasks.shared'
+import { FeathersService } from '@feathersjs/feathers'
 
 type BoardState = {
-    lists: Lists[],
-    tasks: Tasks[]
+    lists: Lists[], // Массив колонок
+    tasks: Tasks[], // Массив задач
 }
 
+// Асинхронное действие для получения списка колонок
 export const getLists = createAsyncThunk(
     'board/getLists',
     async (board: string) => {
@@ -26,6 +28,7 @@ export const getLists = createAsyncThunk(
     }
 )
 
+// Асинхронное действие для получения списка задач
 export const getTasks = createAsyncThunk(
     'board/getTasks',
     async (board: string) => {
@@ -42,6 +45,7 @@ export const getTasks = createAsyncThunk(
     }
 )
 
+// Асинхронное действие для создания новой колонки
 export const createList = createAsyncThunk(
     'board/createList',
     async ({ title, board }: {
@@ -60,6 +64,7 @@ export const createList = createAsyncThunk(
     }
 )
 
+// Асинхронное действие для создания новой задачи
 export const createTask = createAsyncThunk(
     'board/createTask',
     async ({ title, list }: {
@@ -67,7 +72,6 @@ export const createTask = createAsyncThunk(
         list: string
     }) => {
         try {
-
             const task = await client.service('tasks').create({
                 title,
                 list,
@@ -79,6 +83,7 @@ export const createTask = createAsyncThunk(
     }
 )
 
+// Асинхронное действие для перемещения задачи
 export const moveTask = createAsyncThunk(
     'board/moveTask',
     async ({ task, list, order }: {
@@ -88,42 +93,61 @@ export const moveTask = createAsyncThunk(
     }, thunkApi) => {
         const state: RootState = thunkApi.getState() as RootState
         try {
-            const tasks = state.board.tasks.filter(t => t.list === list && t._id !== task).sort((a, b) => a.order - b.order)
+            // const tasks = state.board.tasks.filter(t => t.list === list && t._id !== task).sort((a, b) => a.order - b.order)
             let n = 0
 
-            for (const t of tasks) {
-                const o = n !== order ? n : ++n
-                client.service('tasks').patch(t._id.toString(), {
-                    order: o
+            console.log(state.board.tasks)
+            const tasks = [...state.board.tasks]
+                .sort((a, b) => a.order - b.order)
+                .map(t => {
+                    if (t._id.toString() === task) {
+                        return { ...t, ...{ order: order, list: list } }
+                    }
+                    if (t.list === list && t._id.toString() !== task) {
+
+                        const o = n !== order ? n : ++n
+                        n++
+                        return { ...t, ...{ order: o } }
+                    }
+                    return t
                 })
-                n++
-            }
 
             client.service('tasks').patch(task, {
                 order,
                 list
             })
+            console.log(tasks);
 
-            if (state.boards.current)
-                thunkApi.dispatch(getTasks(state.boards.current._id.toString()))
+            return tasks
         } catch (error) {
+            console.log(error);
 
+            return null
         }
     }
 )
 
-// Define the initial state using that type
+// Исходное состояние
 const initialState: BoardState = {} as BoardState
 
+// Создание среза
 export const boardSlice = createSlice({
     name: 'board',
-    // `createSlice` will infer the state type from the `initialState` argument
     initialState,
     reducers: {
         reset: (state) => {
             state.lists = []
             state.tasks = []
-        }
+        },
+        createTaskLocal: (state, action: PayloadAction<Tasks>) => {
+            state.tasks.push(action.payload)
+        },
+        updateTaskLocal: (state, action: PayloadAction<Tasks>) => {
+            state.tasks.splice(state.tasks.findIndex(t => t._id == action.payload._id), 1, action.payload)
+        },
+        createListLocal: (state, action: PayloadAction<Lists>) => {
+            state.lists.push(action.payload)
+        },
     },
     extraReducers(builder) {
         builder.addCase(getLists.fulfilled, (state, action) => {
@@ -137,15 +161,17 @@ export const boardSlice = createSlice({
                 state.lists.push(action.payload)
         })
         builder.addCase(createTask.fulfilled, (state, action) => {
-            if (action.payload)
-                state.tasks.push(action.payload)
+            //   if (action.payload)
+            //     state.tasks.push(action.payload)
         })
-        builder.addCase(moveTask.fulfilled, () => {
-            
+        builder.addCase(moveTask.fulfilled, (state, action) => {
+            if (action.payload)
+                state.tasks = action.payload
         })
     },
 })
 
-export const { reset } = boardSlice.actions
+// Экспорт действий
+export const { reset, createTaskLocal, updateTaskLocal, createListLocal } = boardSlice.actions
 
 export default boardSlice.reducer

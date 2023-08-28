@@ -4,7 +4,8 @@ import authentication from '@feathersjs/authentication-client'
 import { createClient } from 'kanban-api'
 
 
-export const apiPath = 'http://80.78.247.239:3030'
+// export const apiPath = 'http://80.78.247.239:3030'
+export const apiPath = 'http://localhost:3030'
 
 const connection = socketio(io(apiPath))
 

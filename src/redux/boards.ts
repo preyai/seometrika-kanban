@@ -5,7 +5,7 @@ import { Paginated } from '@feathersjs/feathers'
 import { Boards } from 'kanban-api'
 
 type BoardsState = {
-    data: Boards[]
+    list: Boards[]
     current: Boards | null
 }
 
@@ -17,7 +17,7 @@ const initial = async (): Promise<BoardsState> => {
         console.log(list);
 
         return {
-            data: list.data,
+            list: list.data,
             current: null
         }
     } catch (error) {
@@ -89,13 +89,13 @@ export const boardsSlice = createSlice({
     reducers: {},
     extraReducers(builder) {
         builder.addCase(get.fulfilled, (state, action) => {
-            state.data = action.payload.data
+            state.list = action.payload.data
         })
         builder.addCase(add.fulfilled, (state, action) => {
-            state.data = action.payload.data
+            state.list = action.payload.data
         })
         builder.addCase(remove.fulfilled, (state, action) => {
-            state.data = action.payload.data
+            state.list = action.payload.data
         })
         builder.addCase(getCurrent.fulfilled, (state, action) => {
             state.current = action.payload

@@ -10,12 +10,12 @@ import router from './utils/router';
 import { RouterProvider } from 'react-router-dom';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
+  // <React.StrictMode>
     <Provider store={store}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <RouterProvider router={router} />
       </ThemeProvider>
     </Provider>
-  </React.StrictMode>,
+  // </React.StrictMode>,
 )
