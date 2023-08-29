@@ -2713,9 +2713,30 @@ jws@^4.0.0:
     jwa "^2.0.0"
     safe-buffer "^5.0.1"
 
-"kanban-api@http://80.78.247.239:3030/kanban-api-0.0.0.tgz":
+"kanban-api@http://localhost:3030/kanban-api-0.0.0.tgz":
   version "0.0.0"
-  resolved "http://80.78.247.239:3030/kanban-api-0.0.0.tgz#791396d865bc6e1e0a772dd8c87e7ddde1c8a74e"
+  resolved "http://localhost:3030/kanban-api-0.0.0.tgz#fb599d7dd750433c6832021d06f847e9273661b0"
+  dependencies:
+    "@feathersjs/adapter-commons" "^5.0.8"
+    "@feathersjs/authentication" "^5.0.8"
+    "@feathersjs/authentication-client" "^5.0.8"
+    "@feathersjs/authentication-local" "^5.0.8"
+    "@feathersjs/authentication-oauth" "^5.0.8"
+    "@feathersjs/configuration" "^5.0.8"
+    "@feathersjs/errors" "^5.0.8"
+    "@feathersjs/feathers" "^5.0.8"
+    "@feathersjs/koa" "^5.0.8"
+    "@feathersjs/mongodb" "^5.0.8"
+    "@feathersjs/schema" "^5.0.8"
+    "@feathersjs/socketio" "^5.0.8"
+    "@feathersjs/transport-commons" "^5.0.8"
+    "@feathersjs/typebox" "^5.0.8"
+    mongodb "^5.7.0"
+    winston "^3.10.0"
+
+"kanban-api@http://localhost:3030/kanban-api-0.0.1.tgz":
+  version "0.0.1"
+  resolved "http://localhost:3030/kanban-api-0.0.1.tgz#a0a25180b77fe709062264837dec7aa30abf6531"
   dependencies:
     "@feathersjs/adapter-commons" "^5.0.8"
     "@feathersjs/authentication" "^5.0.8"

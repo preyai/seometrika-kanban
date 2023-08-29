@@ -19,7 +19,7 @@
     "@mui/material": "^5.14.5",
     "@reduxjs/toolkit": "^1.9.5",
     "@types/react-beautiful-dnd": "^13.1.4",
-    "kanban-api": "http://80.78.247.239:3030/kanban-api-0.0.0.tgz",
+    "kanban-api": "http://localhost:3030/kanban-api-0.0.1.tgz",
     "react": "^18.2.0",
     "react-beautiful-dnd": "^13.1.1",
     "react-dom": "^18.2.0",

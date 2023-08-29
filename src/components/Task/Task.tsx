@@ -5,27 +5,16 @@ import { useAppDispatch } from "../../hooks/redux";
 import { deleteTask } from "../../redux/tasks";
 import { DraggableProvided } from "react-beautiful-dnd";
 import { Tasks } from "kanban-api";
+import TaskDetail from "../TaskDetail/TaskDetail";
 
 type TaskProps = {
     task: Tasks,
     provided: DraggableProvided
 }
 
-const style = {
-    position: 'absolute' as 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: 400,
-    bgcolor: 'background.paper',
-    border: '2px solid #000',
-    boxShadow: 24,
-    p: 4,
-};
+
 
 function Task({ task, provided }: TaskProps) {
-    const [open, setOpen] = useState(false)
-    const dispatch = useAppDispatch()
 
     return (
         <Card
@@ -41,33 +30,20 @@ function Task({ task, provided }: TaskProps) {
                     {task.number}. {task.title}
                 </Typography>
 
-                <Typography variant="body2">
-                    task description {task.order}
+                <Typography
+                    sx={{
+                        display: '-webkit-box',
+                        overflow: 'hidden',
+                        WebkitBoxOrient: 'vertical',
+                        WebkitLineClamp: 3,
+                    }}
+                    variant="body2"
+                >
+                    {task.description}
                 </Typography>
             </CardContent>
-            <CardActions>
-                <Button size="small" onClick={() => setOpen(true)}>Show More</Button>
-            </CardActions>
-            <Modal
-                open={open}
-                onClose={() => setOpen(false)}
-                aria-labelledby="modal-modal-title"
-                aria-describedby="modal-modal-description"
-            >
-                <Box sx={style}>
-                    <Typography id="modal-modal-title" variant="h6" component="h2">
-                        {task.number}. {task.title}
-                    </Typography>
-                    <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                        task description {task.order}
-                    </Typography>
-                    <Button
-                    // onClick={() => dispatch(deleteTask(task._id))}
-                    >
-                        delete
-                    </Button>
-                </Box>
-            </Modal>
+            <TaskDetail task={task} />
+
         </Card>
     )
 }

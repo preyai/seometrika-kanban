@@ -3,7 +3,7 @@ import { ClientApplication, Lists } from 'kanban-api'
 import { Tasks } from 'kanban-api'
 import client from '../utils/feathers'
 import { RootState } from '../utils/store'
-import { TasksClientService } from 'kanban-api/lib/services/tasks/tasks.shared'
+import { TasksClientService, TasksPatch } from 'kanban-api/lib/services/tasks/tasks.shared'
 import { FeathersService } from '@feathersjs/feathers'
 
 type BoardState = {
@@ -83,6 +83,19 @@ export const createTask = createAsyncThunk(
     }
 )
 
+export const changeTask = createAsyncThunk(
+    'board/changeTask',
+    async ({ taskId, task }: {
+        taskId: string,
+        task: TasksPatch
+    }) => {
+        const updated = await client.service('tasks').patch(taskId, task)
+        console.log(updated);
+        return updated
+        
+    }
+)
+
 // Асинхронное действие для перемещения задачи
 export const moveTask = createAsyncThunk(
     'board/moveTask',
@@ -157,8 +170,8 @@ export const boardSlice = createSlice({
             state.tasks = action.payload
         })
         builder.addCase(createList.fulfilled, (state, action) => {
-            if (action.payload)
-                state.lists.push(action.payload)
+            // if (action.payload)
+            //     state.lists.push(action.payload)
         })
         builder.addCase(createTask.fulfilled, (state, action) => {
             //   if (action.payload)
@@ -167,6 +180,10 @@ export const boardSlice = createSlice({
         builder.addCase(moveTask.fulfilled, (state, action) => {
             if (action.payload)
                 state.tasks = action.payload
+        })
+        builder.addCase(changeTask.fulfilled, (state, action) => {
+            if (action.payload)
+                state.tasks.splice(state.tasks.findIndex(t => t._id == action.payload._id), 1, action.payload)
         })
     },
 })
