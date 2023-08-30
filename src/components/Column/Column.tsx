@@ -1,9 +1,10 @@
-import { Box, Button, IconButton, InputBase, Paper, TextField, Typography, styled } from "@mui/material";
+import { Box, Button, IconButton, InputBase, Menu, MenuItem, Paper, TextField, Typography, styled } from "@mui/material";
 import { Lists } from "kanban-api";
-import { FormEvent, PropsWithChildren, useState } from "react";
+import { FormEvent, MouseEvent, PropsWithChildren, useState } from "react";
 import { useAppDispatch } from "../../hooks/redux";
 import { DroppableProvided } from "react-beautiful-dnd";
-import { Add, Close } from "@mui/icons-material";
+import AddIcon from "@mui/icons-material/Add";
+import MenuIcon from "@mui/icons-material/Menu";
 import { createTask } from "../../redux/board";
 
 interface ColumnProps extends PropsWithChildren {
@@ -18,13 +19,25 @@ export const ColumnPaper = styled(Paper)({
 
 function Column({ children, list, provided }: ColumnProps) {
     const [newTitle, setNewTitle] = useState("")
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
     const dispatch = useAppDispatch()
 
-    const addHandler = (e: FormEvent) => {
+    const handleMenu = (event: MouseEvent<HTMLElement>) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
+
+    const handleCreate = (e: FormEvent) => {
         e.preventDefault()
+        if (!newTitle)
+            return
         dispatch(createTask({
             title: newTitle,
-            list:list._id.toString()
+            list: list._id.toString()
         }))
         setNewTitle("")
     }
@@ -39,10 +52,27 @@ function Column({ children, list, provided }: ColumnProps) {
                 <IconButton
                     type="button"
                     sx={{ p: '10px' }}
-                    // onClick={() => dispatch(deleteColumn(list.id))}
+                    onClick={handleMenu}
                 >
-                    <Close />
+                    <MenuIcon />
                 </IconButton>
+                <Menu
+                    anchorEl={anchorEl}
+                    anchorOrigin={{
+                        vertical: 'top',
+                        horizontal: 'right',
+                    }}
+                    keepMounted
+                    transformOrigin={{
+                        vertical: 'top',
+                        horizontal: 'right',
+                    }}
+                    open={Boolean(anchorEl)}
+                    onClose={handleClose}
+                >
+                    <MenuItem onClick={handleClose}>Edit</MenuItem>
+                    <MenuItem onClick={handleClose}>Delite</MenuItem>
+                </Menu>
             </Paper>
 
             <ColumnPaper
@@ -54,7 +84,7 @@ function Column({ children, list, provided }: ColumnProps) {
                 <Paper
                     component="form"
                     sx={{ p: '2px 4px', display: 'flex', alignItems: 'center', mb: 2 }}
-                    onSubmit={addHandler}
+                    onSubmit={handleCreate}
                 >
                     <InputBase
                         sx={{ ml: 1, flex: 1 }}
@@ -65,9 +95,9 @@ function Column({ children, list, provided }: ColumnProps) {
                     <IconButton
                         type="button"
                         sx={{ p: '10px' }}
-                        onClick={addHandler}
+                        onClick={handleCreate}
                     >
-                        <Add />
+                        <AddIcon />
                     </IconButton>
                 </Paper>
             </ColumnPaper>

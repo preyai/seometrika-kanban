@@ -2,14 +2,14 @@ import { styled, useTheme } from '@mui/material/styles';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
-import { MouseEvent, PropsWithChildren, useEffect, useState } from 'react';
-import { Box, Divider, Drawer, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Menu, MenuItem, AppBar as MuiAppBar, AppBarProps as MuiAppBarProps, Toolbar, Typography } from '@mui/material';
+import { ChangeEvent, MouseEvent, PropsWithChildren, useEffect, useState } from 'react';
+import { Box, Divider, Drawer, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Menu, MenuItem, AppBar as MuiAppBar, AppBarProps as MuiAppBarProps, TextField, Toolbar, Typography } from '@mui/material';
 import { AccountCircle } from '@mui/icons-material';
 import { logout } from '../../redux/auth';
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import ProjectsList from '../BoardsList/BoardsList';
 import { Outlet, useNavigate } from 'react-router-dom';
+import { getTasks, setQuery } from '../../redux/board';
 
 const drawerWidth = 240;
 
@@ -65,17 +65,24 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 function Navigation({ children }: PropsWithChildren) {
     const theme = useTheme();
     const auth = useAppSelector(state => state.auth)
-    const {current} = useAppSelector(state => state.boards)
+    const { query } = useAppSelector(state => state.board)
+    const { current } = useAppSelector(state => state.boards)
     const navigate = useNavigate()
     const [open, setOpen] = useState(false);
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const dispatch = useAppDispatch()
 
     useEffect(() => {
         if (auth.user === null)
             navigate("/login")
     }, [auth])
 
-    const dispatch = useAppDispatch()
+    useEffect(() => {
+        console.log(query);
+        
+        dispatch(getTasks())
+    }, [query])
+
 
     const handleMenu = (event: MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
@@ -98,6 +105,10 @@ function Navigation({ children }: PropsWithChildren) {
         dispatch(logout())
     };
 
+    const handleSearch = (event: ChangeEvent<HTMLInputElement>) => {
+            dispatch(setQuery(event.target.value))
+    }
+
     if (auth.user)
         return (
             <Box sx={{ display: 'flex' }}>
@@ -115,12 +126,18 @@ function Navigation({ children }: PropsWithChildren) {
                         <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
                             Seometrika {current && `- "${current.title}"`}
                         </Typography>
+                        {query !== undefined &&
+                            <TextField
+                                label="Search"
+                                variant="outlined"
+                                size='small'
+                                value={query}
+                                onChange={handleSearch}
+                            />
+                        }
                         <>
                             <IconButton
                                 size="large"
-                                aria-label="account of current user"
-                                aria-controls="menu-appbar"
-                                aria-haspopup="true"
                                 onClick={handleMenu}
                                 color="inherit"
                             >

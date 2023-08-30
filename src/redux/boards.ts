@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice, current } from '@reduxjs/toolkit'
+import { PayloadAction, createAsyncThunk, createSlice, current } from '@reduxjs/toolkit'
 
 import client from '../utils/feathers'
 import { Paginated } from '@feathersjs/feathers'
@@ -14,7 +14,6 @@ const initial = async (): Promise<BoardsState> => {
         const list = await client.service("boards").find({
             paginate: { max: 100 }
         })
-        console.log(list);
 
         return {
             list: list.data,
@@ -97,7 +96,7 @@ export const boardsSlice = createSlice({
         builder.addCase(remove.fulfilled, (state, action) => {
             state.list = action.payload.data
         })
-        builder.addCase(getCurrent.fulfilled, (state, action) => {
+        builder.addCase(getCurrent.fulfilled, (state, action: PayloadAction<Boards | null>) => {
             state.current = action.payload
         })
     },

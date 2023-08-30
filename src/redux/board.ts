@@ -4,25 +4,33 @@ import { Tasks } from 'kanban-api'
 import client from '../utils/feathers'
 import { RootState } from '../utils/store'
 import { TasksClientService, TasksPatch } from 'kanban-api/lib/services/tasks/tasks.shared'
-import { FeathersService } from '@feathersjs/feathers'
+import { TasksQuery } from 'kanban-api/lib/services/tasks/tasks.class'
 
 type BoardState = {
     lists: Lists[], // Массив колонок
     tasks: Tasks[], // Массив задач
+    query: string
 }
 
 // Асинхронное действие для получения списка колонок
 export const getLists = createAsyncThunk(
     'board/getLists',
-    async (board: string) => {
+    async (arg, { getState }) => {
+
         try {
+            const { boards } = await getState() as RootState
+            if (!boards.current)
+                return []
             const lists = await client.service('lists').find({
                 query: {
-                    board: board
+                    board: boards.current._id
                 }
             })
+
             return lists.data
         } catch (error) {
+            console.log(error);
+
             return []
         }
     }
@@ -31,15 +39,29 @@ export const getLists = createAsyncThunk(
 // Асинхронное действие для получения списка задач
 export const getTasks = createAsyncThunk(
     'board/getTasks',
-    async (board: string) => {
+    async (arg, { getState }) => {
         try {
+            const { boards, board } = await getState() as RootState
+            if (!boards.current)
+                return []
+
+            const query: TasksQuery = {}
+            query.board = boards.current._id
+            if (board.query) {
+                query.$or = [
+                    { title: { $regex: `${board.query}` } },
+                    { description: { $regex: `${board.query}%` } }
+                ]
+            }
             const lists = await client.service('tasks').find({
-                query: {
-                    board: board
-                }
+                query
             })
+            console.log(lists);
+            
             return lists.data
         } catch (error) {
+            console.log(error);
+            
             return []
         }
     }
@@ -92,7 +114,7 @@ export const changeTask = createAsyncThunk(
         const updated = await client.service('tasks').patch(taskId, task)
         console.log(updated);
         return updated
-        
+
     }
 )
 
@@ -141,7 +163,7 @@ export const moveTask = createAsyncThunk(
 )
 
 // Исходное состояние
-const initialState: BoardState = {} as BoardState
+const initialState: BoardState = { query: "" } as BoardState
 
 // Создание среза
 export const boardSlice = createSlice({
@@ -151,6 +173,7 @@ export const boardSlice = createSlice({
         reset: (state) => {
             state.lists = []
             state.tasks = []
+            state.query = ""
         },
         createTaskLocal: (state, action: PayloadAction<Tasks>) => {
             state.tasks.push(action.payload)
@@ -161,6 +184,9 @@ export const boardSlice = createSlice({
         createListLocal: (state, action: PayloadAction<Lists>) => {
             state.lists.push(action.payload)
         },
+        setQuery: (state, action: PayloadAction<string>) => {
+            state.query = action.payload
+        }
     },
     extraReducers(builder) {
         builder.addCase(getLists.fulfilled, (state, action) => {
@@ -189,6 +215,6 @@ export const boardSlice = createSlice({
 })
 
 // Экспорт действий
-export const { reset, createTaskLocal, updateTaskLocal, createListLocal } = boardSlice.actions
+export const { reset, createTaskLocal, updateTaskLocal, createListLocal, setQuery } = boardSlice.actions
 
 export default boardSlice.reducer

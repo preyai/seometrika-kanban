@@ -11,16 +11,16 @@ import { Add, Close } from "@mui/icons-material";
 import { createList, createListLocal, createTaskLocal, getLists, getTasks, moveTask, reset, updateTaskLocal } from "../../redux/board";
 import client from "../../utils/feathers";
 import { Lists, Tasks } from "kanban-api";
+import NewColumn from "../NewColumn/NewColumn";
 
 function Board() {
-  const [newTitle, setNewTitle] = useState(""); // Состояние для нового заголовка колонки
 
   // Получение данных из Redux-стора
   const { lists, tasks } = useAppSelector((state) => state.board);
   const { current } = useAppSelector((state) => state.boards);
 
   // Получение диспетчера Redux
-  const dispatch: AppDispatch = useAppDispatch();
+  const dispatch = useAppDispatch();
 
   // Получение параметров URL
   const { projectId } = useParams();
@@ -32,9 +32,10 @@ function Board() {
 
   // Загрузка списков и задач при изменении текущего проекта
   useEffect(() => {
+
     if (current) {
-      dispatch(getLists(current._id.toString()));
-      dispatch(getTasks(current._id.toString()));
+      dispatch(getLists());
+      dispatch(getTasks());
 
       // Подписка на событие создания задачи
       client.service("tasks").on("created", (task: Tasks) => {
@@ -72,25 +73,12 @@ function Board() {
     }
   };
 
-  // Обработка события добавления новой колонки
-  const addHandler = (e: FormEvent) => {
-    e.preventDefault();
-    if (current) {
-      dispatch(
-        createList({
-          title: newTitle,
-          board: current._id.toString(),
-        })
-      );
-    }
-    setNewTitle("");
-  };
-
   // Отображение компонента, если текущий проект существует
   if (current) {
     return (
-      <div>
-        <div style={{ display: "flex", gap: 20 }}>
+      <Box>
+
+        <Box style={{ display: "flex", gap: 20 }}>
           <DragDropContext onDragEnd={onDragEnd}>
             {/* Отображение списка колонок */}
             {lists &&
@@ -120,32 +108,10 @@ function Board() {
                 </Droppable>
               ))}
             {/* Форма для добавления новой колонки */}
-            <Box>
-              <Paper
-                component="form"
-                sx={{
-                  p: "2px 4px",
-                  display: "flex",
-                  alignItems: "center",
-                  width: 300,
-                  mb: 2,
-                }}
-                onSubmit={addHandler}
-              >
-                <InputBase
-                  sx={{ ml: 1, flex: 1 }}
-                  placeholder="New column"
-                  value={newTitle}
-                  onChange={(e) => setNewTitle(e.target.value)}
-                />
-                <IconButton type="button" sx={{ p: "10px" }} onClick={addHandler}>
-                  <Add />
-                </IconButton>
-              </Paper>
-            </Box>
+            <NewColumn />
           </DragDropContext>
-        </div>
-      </div>
+        </Box>
+      </Box>
     );
   }
 }
