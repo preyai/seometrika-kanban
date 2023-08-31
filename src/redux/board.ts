@@ -50,7 +50,7 @@ export const getTasks = createAsyncThunk(
             if (board.query) {
                 query.$or = [
                     { title: { $regex: `${board.query}` } },
-                    { description: { $regex: `${board.query}%` } }
+                    { description: { $regex: `${board.query}` } }
                 ]
             }
             const lists = await client.service('tasks').find({

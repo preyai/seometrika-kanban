@@ -1,8 +1,13 @@
 import { Button, CardActions, Dialog, DialogContent, TextField, Typography } from "@mui/material"
 import { Tasks } from "kanban-api";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useAppDispatch } from "../../hooks/redux";
 import { changeTask } from "../../redux/board";
+import { useEditor } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import { MenuButtonAddImage, MenuButtonAddTable, MenuButtonBold, MenuButtonItalic, MenuControlsContainer, MenuDivider, MenuSelectHeading, RichTextEditorProvider, RichTextField } from "mui-tiptap";
+import Image from "@tiptap/extension-image";
+import Table from "@tiptap/extension-table";
 
 type TaskDetailProps = {
     task: Tasks
@@ -17,6 +22,16 @@ function TaskDetail({ task }: TaskDetailProps) {
 
     const dispatch = useAppDispatch()
 
+    const editor = useEditor({
+        extensions: [
+            StarterKit,
+            Image
+        ],
+        content: value,
+        onUpdate: (e) => setValue(e.editor.getHTML()),
+
+    });
+
     useEffect(() => {
         setChanged(task.description !== value)
     }, [value, task])
@@ -30,8 +45,16 @@ function TaskDetail({ task }: TaskDetailProps) {
         }))
     }
 
+    const addImage = useCallback(() => {
+        const url = window.prompt('URL')
+
+        if (url && editor) {
+            editor.chain().focus().setImage({ src: url }).run()
+        }
+    }, [editor])
+
     return (
-        <>
+        <RichTextEditorProvider editor={editor}>
             <CardActions>
                 <Button size="small" onClick={() => setOpen(true)}>Show More</Button>
             </CardActions>
@@ -54,6 +77,19 @@ function TaskDetail({ task }: TaskDetailProps) {
                         onChange={e => setValue(e.target.value)}
                     />
 
+                    <RichTextField
+                        controls={
+                            <MenuControlsContainer>
+                                <MenuSelectHeading />
+                                <MenuDivider />
+                                <MenuButtonBold />
+                                <MenuButtonItalic />
+                                <MenuButtonAddImage onClick={addImage} />
+                                {/* Add more controls of your choosing here */}
+                            </MenuControlsContainer>
+                        }
+                    />
+
                     {changed &&
                         <Button
                             onClick={saveHandler}
@@ -63,7 +99,7 @@ function TaskDetail({ task }: TaskDetailProps) {
                     }
                 </DialogContent>
             </Dialog>
-        </>
+        </RichTextEditorProvider>
     )
 }
 
